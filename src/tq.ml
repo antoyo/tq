@@ -15,15 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-open Base
+open TqBase
 
-let nop () = ()
+type text_property =
+    | TextBold
+    | TextNormal
+
+let nop _ = ()
 
 let on_keypress_function = ref (fun _ -> nop ())
 
-let on_resize_function = ref (fun _ _ -> nop ())
+let on_resize_function = ref (fun _ -> nop ())
 
 let should_quit = ref false
+
+let terminal_size = ref (0, 0)
 
 let on_keypress func =
     on_keypress_function := func
@@ -32,22 +38,68 @@ let on_resize func =
     on_resize_function := func
 
 let main_loop () =
-    let (width, height) = size () in
     save_screen ();
-    clear_screen ();
-    !on_resize_function width height;
-    let rec loop width height =
-        let (new_width, new_height) = size () in
-        if new_width <> width || height <> new_height then
-            !on_resize_function width height;
+    hide_cursor ();
+    let rec loop () =
+        let new_size = size () in
+        if new_size <> !terminal_size then (
+            terminal_size := new_size;
+            !on_resize_function !terminal_size;
+        );
         (match read_char () with
         | Some character -> !on_keypress_function character
         | None -> ()
         );
         if not !should_quit then
-            loop new_width new_height
-    in loop width height;
+            loop ()
+    in loop ();
     restore_screen ()
+
+let set_property = function
+    | TextBold -> set_bold ()
+    | TextNormal -> ()
+
+let set_properties = List.iter set_property
 
 let shutdown () =
     should_quit := true
+
+let unset_property = function
+    | TextBold -> unset_bold ()
+    | TextNormal -> ()
+
+let unset_properties = List.iter unset_property
+
+class virtual widget =
+    object (self)
+        method virtual show : int * int -> unit
+    end
+
+class label ?(properties = []) text =
+    object (self)
+        inherit widget
+
+        method show size =
+            set_properties properties;
+            show text;
+            unset_properties properties
+    end
+
+class window widget =
+    object (self)
+        inherit widget
+
+        initializer
+            on_resize self#show;
+            on_keypress self#on_keypress
+
+        method on_keypress character =
+            match character with
+            | 'q' -> shutdown ()
+            | _ -> ()
+
+        method show size =
+            clear_screen ();
+            set_cursor 1 1;
+            widget#show size
+    end

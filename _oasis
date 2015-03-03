@@ -9,5 +9,5 @@ Plugins:     META (0.4), StdFiles (0.4)
 Library tq
   Path:       src
   BuildTools: ocamlbuild
-  Modules:    Base, Tq
+  Modules:    Tq, TqBase
   BuildDepends: unix

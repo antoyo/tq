@@ -17,6 +17,8 @@
 
 type color = Black | Blue | Cyan | Green | Magenta | Red | Yellow | White
 
+type size = int * int
+
 val clear_screen : unit -> unit
 
 val hide_cursor : unit -> unit
@@ -41,7 +43,7 @@ val show_at : string -> int -> int -> unit
 
 val show_cursor : unit -> unit
 
-val size : unit -> int * int
+val size : unit -> size
 
 val unset_bold : unit -> unit
 

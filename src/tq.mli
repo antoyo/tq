@@ -15,10 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-val on_keypress : (char -> unit) -> unit
+open TqBase
 
-val on_resize : (int -> int -> unit) -> unit
+type text_property =
+    | TextBold
+    | TextNormal
+
+val on_resize : (size -> unit) -> unit
 
 val main_loop : unit -> unit
 
 val shutdown : unit -> unit
+
+class virtual widget :
+    object
+        method virtual show : size -> unit
+    end
+
+class label : ?properties: text_property list -> string ->
+    object
+        method show : size -> unit
+    end
+
+class window : widget ->
+    object
+        method on_keypress : char -> unit
+        method show : size -> unit
+    end

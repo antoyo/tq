@@ -17,6 +17,8 @@
 
 type color = Black | Blue | Cyan | Green | Magenta | Red | Yellow | White
 
+type size = int * int
+
 let () =
     let terminfo = Unix.tcgetattr Unix.stdin in
     let new_terminfo = {terminfo with Unix.c_isig = false; Unix.c_icanon = false; Unix.c_vmin = 0; Unix.c_vtime = 1; Unix.c_echo = false } in
