@@ -1,0 +1,13 @@
+OASISFormat: 0.4
+Name:        tq
+Version:     0.1
+Synopsis:    Text-User Interface Library with Widgets
+Authors:     Antoni Boucher
+License:     GPL-3
+Plugins:     META (0.4), StdFiles (0.4)
+
+Library tq
+  Path:       src
+  BuildTools: ocamlbuild
+  Modules:    Base, Tq
+  BuildDepends: unix
