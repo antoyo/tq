@@ -1,1 +1,13 @@
 *.swp
+AUTHORS.txt
+INSTALL.txt
+_tags
+myocamlbuild.ml
+setup.ml
+src/META
+src/tq.mldylib
+src/tq.mllib
+README.txt
+_build
+setup.data
+setup.log
