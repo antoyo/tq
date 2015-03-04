@@ -7,13 +7,24 @@ License:     GPL-3
 Plugins:     META (0.4), StdFiles (0.4)
 
 Library tq
-  Path:       src
-  BuildTools: ocamlbuild
-  Modules:    Tq, TqBase
-  BuildDepends: unix
+    BuildDepends:   unix
+    BuildTools:     ocamlbuild
+    CompiledObject: best
+    Modules:        Tq, TqBase, TString
+    Path:           src
 
 Executable tqtest
     BuildDepends:   tq
     BuildTools:     ocamlbuild
+    CompiledObject: best
     MainIs:         example1.ml
     Path:           examples
+
+AlphaFeatures:      ocamlbuild_more_args
+Document "tq_api"
+    BuildTools:             ocamlbuild, ocamldoc
+    Title:                  API reference for Tq
+    Type:                   ocamlbuild (0.4)
+    XOCamlbuildPath:        .
+    XOCamlbuildExtraArgs:   "-docflags '-charset utf-8 -colorize-code -stars -short-functors'"
+    XOCamlbuildLibraries:   tq

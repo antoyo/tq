@@ -15,17 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-(** Returns a new string containing the [text] with the [sep] string inserted at every [every_index] characters. *)
+(** String operations. *)
+
+(** [TString.insert_every text every_index sep] returns a new string containing the [text] with the [sep] string inserted at every [every_index] characters.*)
 val insert_every : string -> int -> string -> string
 
-(** Returns a substring that contains the [n] leftmost characters of the string. *)
+(** [TString.left text n] returns a substring that contains the [n] leftmost characters of [text]. *)
 val left : string -> int -> string
 
-(** Returns a string that contains [n] characters of the string, starting at the specified [position] index.
- *
+(** [TString.mid text ~n position] returns a string that contains [n] characters of [text], starting at the specified [position] index.
+ * 
  * If n is -1 (default), the function returns all characters that are available from the speficied [position].
- * *)
+ *)
 val mid : string -> ?n : int -> int -> string
 
-(** Splits the string into substrings wherever [sep] occurs, and returns the list of those strings. *)
+(** [TString.split text sep] splits [text] into substrings wherever [sep] occurs, and returns the list of those strings. *)
 val split : string -> char -> string list

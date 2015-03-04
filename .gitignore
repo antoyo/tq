@@ -8,3 +8,6 @@ src/tq.mldylib
 src/tq.mllib
 _build
 *.byte
+*.native
+*.docdir
+*.odocl
