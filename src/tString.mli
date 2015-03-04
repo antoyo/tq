@@ -15,32 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-open TqBase
+(** Returns a new string containing the [text] with the [sep] string inserted at every [every_index] characters. *)
+val insert_every : string -> int -> string -> string
 
-type text_property =
-    | TextBold
-    | TextNormal
+(** Returns a substring that contains the [n] leftmost characters of the string. *)
+val left : string -> int -> string
 
-val on_resize : (size -> unit) -> unit
+(** Returns a string that contains [n] characters of the string, starting at the specified [position] index.
+ *
+ * If n is -1 (default), the function returns all characters that are available from the speficied [position].
+ * *)
+val mid : string -> ?n : int -> int -> string
 
-val main_loop : unit -> unit
-
-val shutdown : unit -> unit
-
-class virtual widget :
-    object
-        method virtual show : position -> size -> unit
-        method show_within : position -> size -> string -> unit
-    end
-
-class label : ?properties: text_property list -> ?multiline: bool -> string ->
-    object
-        method show : position -> size -> unit
-        method show_within : position -> size -> string -> unit
-    end
-
-class window : widget ->
-    object
-        method on_keypress : char -> unit
-        method show : position -> size -> unit
-    end
+(** Splits the string into substrings wherever [sep] occurs, and returns the list of those strings. *)
+val split : string -> char -> string list

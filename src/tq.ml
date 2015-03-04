@@ -16,6 +16,7 @@
  *)
 
 open TqBase
+open TString
 
 type text_property =
     | TextBold
@@ -73,24 +74,36 @@ let unset_properties = List.iter unset_property
 class virtual widget =
     object (self)
         method virtual show : position -> size -> unit
+
+        method show_within (column, row : position) (width, height : size) content =
+            let lines = split content '\n' in
+            let cut_line str = String.sub str 0 (min width (String.length str)) in
+            let lines = List.map cut_line lines in
+            let rec show_within row = function
+                | [] -> ()
+                | line :: rest ->
+                        show_at line (column, row);
+                        show_within (row + 1) rest
+            in show_within row lines
     end
 
 class label ?(properties = []) ?(multiline = false) text =
     object (self)
-        inherit widget
+        inherit widget as super
 
-        method show position size =
+        method show position ((width, _) as size) =
             set_properties properties;
-            if multiline
-                then show text
-                else show (String.sub text 0 (fst size));
+            let text_to_show =
+                if multiline
+                    then insert_every text width "\n"
+                    else String.sub text 0 (fst size)
+            in
+            super#show_within position size text_to_show;
             unset_properties properties
     end
 
 class window widget =
     object (self)
-        inherit widget
-
         initializer
             on_resize (self#show (1, 1));
             on_keypress self#on_keypress

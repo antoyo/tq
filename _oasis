@@ -11,3 +11,9 @@ Library tq
   BuildTools: ocamlbuild
   Modules:    Tq, TqBase
   BuildDepends: unix
+
+Executable tqtest
+    BuildDepends:   tq
+    BuildTools:     ocamlbuild
+    MainIs:         example1.ml
+    Path:           examples
