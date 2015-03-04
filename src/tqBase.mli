@@ -17,6 +17,8 @@
 
 type color = Black | Blue | Cyan | Green | Magenta | Red | Yellow | White
 
+type position = int * int
+
 type size = int * int
 
 val clear_screen : unit -> unit
@@ -31,7 +33,7 @@ val save_screen : unit -> unit
 
 val set_bold : unit -> unit
 
-val set_cursor : int -> int -> unit
+val set_cursor : position -> unit
 
 val set_color : color -> unit
 
@@ -39,7 +41,7 @@ val set_italic : unit -> unit
 
 val show : string -> unit
 
-val show_at : string -> int -> int -> unit
+val show_at : string -> position -> unit
 
 val show_cursor : unit -> unit
 

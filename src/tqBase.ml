@@ -17,6 +17,8 @@
 
 type color = Black | Blue | Cyan | Green | Magenta | Red | Yellow | White
 
+type position = int * int
+
 type size = int * int
 
 let () =
@@ -62,7 +64,7 @@ let save_screen () = write "[?47h"
 
 let set_bold () = write "[1m"
 
-let set_cursor row column = write ("[" ^ string_of_int row ^ ";" ^ string_of_int column ^ "H")
+let set_cursor (column, row) = write ("[" ^ string_of_int row ^ ";" ^ string_of_int column ^ "H")
 
 let set_color color = write ("[3" ^ string_of_color color ^ "m")
 
@@ -73,8 +75,8 @@ let show str =
     let _ = Unix.write Unix.stdout bytes 0 (Bytes.length bytes) in
     ()
 
-let show_at str row column =
-    set_cursor row column;
+let show_at str position =
+    set_cursor position;
     show str
 
 let show_cursor () = write "[?25h"

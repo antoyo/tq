@@ -72,16 +72,18 @@ let unset_properties = List.iter unset_property
 
 class virtual widget =
     object (self)
-        method virtual show : int * int -> unit
+        method virtual show : position -> size -> unit
     end
 
-class label ?(properties = []) text =
+class label ?(properties = []) ?(multiline = false) text =
     object (self)
         inherit widget
 
-        method show size =
+        method show position size =
             set_properties properties;
-            show text;
+            if multiline
+                then show text
+                else show (String.sub text 0 (fst size));
             unset_properties properties
     end
 
@@ -90,7 +92,7 @@ class window widget =
         inherit widget
 
         initializer
-            on_resize self#show;
+            on_resize (self#show (1, 1));
             on_keypress self#on_keypress
 
         method on_keypress character =
@@ -98,8 +100,8 @@ class window widget =
             | 'q' -> shutdown ()
             | _ -> ()
 
-        method show size =
+        method show position size =
             clear_screen ();
-            set_cursor 1 1;
-            widget#show size
+            set_cursor (1, 1);
+            widget#show position size
     end

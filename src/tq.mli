@@ -29,16 +29,16 @@ val shutdown : unit -> unit
 
 class virtual widget :
     object
-        method virtual show : size -> unit
+        method virtual show : position -> size -> unit
     end
 
-class label : ?properties: text_property list -> string ->
+class label : ?properties: text_property list -> ?multiline: bool -> string ->
     object
-        method show : size -> unit
+        method show : position -> size -> unit
     end
 
 class window : widget ->
     object
         method on_keypress : char -> unit
-        method show : size -> unit
+        method show : position -> size -> unit
     end
