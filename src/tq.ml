@@ -20,6 +20,8 @@ open TString
 
 type text_property =
     | TextBold
+    | TextColor of color
+    | TextItalic
     | TextNormal
 
 let nop _ = ()
@@ -58,6 +60,8 @@ let main_loop () =
 
 let set_property = function
     | TextBold -> set_bold ()
+    | TextColor color -> set_color color
+    | TextItalic -> set_italic ()
     | TextNormal -> ()
 
 let set_properties = List.iter set_property
@@ -67,12 +71,16 @@ let shutdown () =
 
 let unset_property = function
     | TextBold -> unset_bold ()
+    | TextColor color -> set_color Default
+    | TextItalic -> unset_italic ()
     | TextNormal -> ()
 
 let unset_properties = List.iter unset_property
 
 class virtual widget =
     object (self)
+        method virtual best_size : size -> size
+
         method virtual show : position -> size -> unit
 
         method show_within (column, row : position) (width, height : size) content =
@@ -87,34 +95,92 @@ class virtual widget =
             in show_within row lines
     end
 
+class virtual container =
+    object (self)
+        inherit widget
+
+        val mutable children = [| |]
+
+        method add : 'a. (#widget as 'a) -> unit = fun widget ->
+            children <- Array.append children [| (widget :> widget) |]
+    end
+
 class label ?(properties = []) ?(multiline = false) text =
     object (self)
         inherit widget as super
+
+        method best_size max_size =
+            if multiline
+                then self#compute_size max_size
+                else (String.length text, 1)
+
+        method private compute_size (max_width, max_height) =
+            let lines = split text '\n' in
+            let line_lengths = List.map String.length lines in
+            let width = min max_width (TList.max line_lengths) in
+            let count_function length = int_of_float (ceil (float length /. float max_width)) in
+            let line_counts = List.map count_function line_lengths in
+            let height = min max_height (TList.sum line_counts) in
+            (width, height)
 
         method show position ((width, _) as size) =
             set_properties properties;
             let text_to_show =
                 if multiline
                     then insert_every text width "\n"
-                    else String.sub text 0 (fst size)
+                    else
+                        let widget_width = min width (String.length text) in
+                        String.sub text 0 widget_width
             in
             super#show_within position size text_to_show;
             unset_properties properties
     end
 
+class vbox =
+    object (self)
+        inherit container
+
+        method best_size ((max_width, max_height) as max_size) =
+            let best_sizes = Array.map (fun obj -> obj#best_size max_size) children in
+            let best_widths = Array.map fst best_sizes in
+            let best_width = TArray.max best_widths in
+            let width = min max_width best_width in
+            let best_heights = Array.map snd best_sizes in
+            let best_height = TArray.max best_heights in
+            let height = min max_height best_height in
+            (width, height)
+
+        method show (column, row) (width, height) =
+            let last_row = row + height - 1 in
+            let rec show row index =
+                if row > last_row || index >= Array.length children
+                    then ()
+                    else
+                        let widget = children.(index) in
+                        let max_height = last_row - row + 1 in
+                        let (_, widget_best_height) = widget#best_size (width, max_height) in
+                        let widget_height = min max_height widget_best_height in
+                        widget#show (column, row) (width, widget_height);
+                        show (row + widget_height) (index + 1)
+            in show row 0
+    end
+
 class window widget =
     object (self)
+        val mutable on_keypress_function = nop
+
         initializer
             on_resize (self#show (1, 1));
-            on_keypress self#on_keypress
+            on_keypress self#keypress
 
-        method on_keypress character =
-            match character with
-            | 'q' -> shutdown ()
-            | _ -> ()
+        method private keypress character =
+            on_keypress_function character
+
+        method on_keypress keypress_function =
+            on_keypress_function <- keypress_function
 
         method show position size =
             clear_screen ();
             set_cursor (1, 1);
-            widget#show position size
+            (widget :> widget)#show position size
     end

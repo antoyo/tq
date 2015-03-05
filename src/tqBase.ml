@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-type color = Black | Blue | Cyan | Green | Magenta | Red | Yellow | White
+type color = Black | Blue | Cyan | Default | Green | Magenta | Red | Yellow | White
 
 type position = int * int
 
@@ -31,6 +31,7 @@ let string_of_color = function
     | Black -> "0"
     | Blue -> "4"
     | Cyan -> "6"
+    | Default -> "9"
     | Green -> "2"
     | Magenta -> "5"
     | Red -> "1"

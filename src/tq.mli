@@ -19,6 +19,8 @@ open TqBase
 
 type text_property =
     | TextBold
+    | TextColor of color
+    | TextItalic
     | TextNormal
 
 val on_resize : (size -> unit) -> unit
@@ -29,18 +31,39 @@ val shutdown : unit -> unit
 
 class virtual widget :
     object
+        method virtual best_size : size -> size
+        method virtual show : position -> size -> unit
+        method show_within : position -> size -> string -> unit
+    end
+
+class virtual container :
+    object
+        val mutable children : widget array
+
+        method add : #widget -> unit
+        method virtual best_size : size -> size
         method virtual show : position -> size -> unit
         method show_within : position -> size -> string -> unit
     end
 
 class label : ?properties: text_property list -> ?multiline: bool -> string ->
     object
+        method best_size : size -> size
         method show : position -> size -> unit
         method show_within : position -> size -> string -> unit
     end
 
-class window : widget ->
+class vbox :
     object
-        method on_keypress : char -> unit
+        method add : #widget -> unit
+        method best_size : size -> size
+        method show : position -> size -> unit
+        method show_within : position -> size -> string -> unit
+    end
+
+class window : #widget ->
+    object
+        method private keypress : char -> unit
+        method on_keypress : (char -> unit) -> unit
         method show : position -> size -> unit
     end

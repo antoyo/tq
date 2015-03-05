@@ -15,38 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-type color = Black | Blue | Cyan | Default | Green | Magenta | Red | Yellow | White
-
-type position = int * int
-
-type size = int * int
-
-val clear_screen : unit -> unit
-
-val hide_cursor : unit -> unit
-
-val read_char : unit -> char option
-
-val restore_screen : unit -> unit
-
-val save_screen : unit -> unit
-
-val set_bold : unit -> unit
-
-val set_cursor : position -> unit
-
-val set_color : color -> unit
-
-val set_italic : unit -> unit
-
-val show : string -> unit
-
-val show_at : string -> position -> unit
-
-val show_cursor : unit -> unit
-
-val size : unit -> size
-
-val unset_bold : unit -> unit
-
-val unset_italic : unit -> unit
+let max =
+    let comparison_function acc elem =
+        if elem > acc
+            then elem
+            else acc
+    in
+    Array.fold_left comparison_function 0
