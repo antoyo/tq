@@ -18,6 +18,8 @@
 open TqBase
 open TString
 
+type color = TqBase.color = Black | Blue | Cyan | Default | Green | Magenta | Red | Yellow | White
+
 type text_property =
     | TextBold
     | TextColor of color
