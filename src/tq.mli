@@ -33,39 +33,61 @@ val shutdown : unit -> unit
 
 class virtual widget :
     object
+        val mutable window : window option
+
         method virtual best_size : size -> size
+        method set_window : window -> unit
         method virtual show : position -> size -> unit
+        method virtual show_part : int -> position -> size -> unit
         method show_within : position -> size -> string -> unit
+    end
+
+and window : #widget ->
+    object
+        method private keypress : char -> unit
+        method on_keypress : (char -> unit) -> unit
+        method show : position -> size -> unit
     end
 
 class virtual container :
     object
         val mutable children : widget array
 
-        method add : #widget -> unit
+        method add : widget -> unit
         method virtual best_size : size -> size
+        method set_window : window -> unit
         method virtual show : position -> size -> unit
+        method virtual show_part : int -> position -> size -> unit
         method show_within : position -> size -> string -> unit
     end
 
 class label : ?properties: text_property list -> ?multiline: bool -> string ->
     object
         method best_size : size -> size
+        method set_window : window -> unit
         method show : position -> size -> unit
+        method show_part : int -> position -> size -> unit
+        method show_within : position -> size -> string -> unit
+    end
+
+class scrollbar : ?horizontal: bool -> ?vertical: bool -> #widget ->
+    object
+        val mutable value : int
+
+        method add : widget -> unit
+        method best_size : size -> size
+        method set_window : window -> unit
+        method show : position -> size -> unit
+        method show_part : int -> position -> size -> unit
         method show_within : position -> size -> string -> unit
     end
 
 class vbox :
     object
-        method add : #widget -> unit
+        method add : widget -> unit
         method best_size : size -> size
+        method set_window : window -> unit
         method show : position -> size -> unit
+        method show_part : int -> position -> size -> unit
         method show_within : position -> size -> string -> unit
-    end
-
-class window : #widget ->
-    object
-        method private keypress : char -> unit
-        method on_keypress : (char -> unit) -> unit
-        method show : position -> size -> unit
     end

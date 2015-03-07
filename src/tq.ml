@@ -81,9 +81,17 @@ let unset_properties = List.iter unset_property
 
 class virtual widget =
     object (self)
+        val mutable window = (None : window option)
+
         method virtual best_size : size -> size
 
-        method virtual show : position -> size -> unit
+        method set_window new_window =
+            window <- Some new_window
+
+        method show position size =
+            self#show_part 0 position size
+
+        method virtual show_part : int -> position -> size -> unit
 
         method show_within (column, row : position) (width, height : size) content =
             let lines = split content '\n' in
@@ -97,13 +105,34 @@ class virtual widget =
             in show_within row lines
     end
 
+and window widget =
+    object (self)
+        val mutable focused_widget = None
+        val mutable on_keypress_function = nop
+
+        initializer
+            on_resize (self#show (1, 1));
+            on_keypress self#keypress
+
+        method private keypress character =
+            on_keypress_function character
+
+        method on_keypress keypress_function =
+            on_keypress_function <- keypress_function
+
+        method show position size =
+            clear_screen ();
+            set_cursor (1, 1);
+            widget#show position size
+    end
+
 class virtual container =
     object (self)
         inherit widget
 
         val mutable children = [| |]
 
-        method add : 'a. (#widget as 'a) -> unit = fun widget ->
+        method add : widget -> unit = fun widget ->
             children <- Array.append children [| (widget :> widget) |]
     end
 
@@ -125,7 +154,7 @@ class label ?(properties = []) ?(multiline = false) text =
             let height = min max_height (TList.sum line_counts) in
             (width, height)
 
-        method show position ((width, _) as size) =
+        method show_part drop position ((width, _) as size) =
             set_properties properties;
             let text_to_show =
                 if multiline
@@ -136,6 +165,25 @@ class label ?(properties = []) ?(multiline = false) text =
             in
             super#show_within position size text_to_show;
             unset_properties properties
+    end
+
+class scrollbar ?(horizontal = true) ?(vertical = true) widget =
+    object (self)
+        inherit container
+
+        val mutable value = 0
+
+        initializer
+            self#add (widget :> widget)
+
+        method best_size max_size =
+            if Array.length children > 0
+                then widget#best_size max_size
+                else (0, 0)
+
+        method show_part drop position size =
+            if Array.length children > 0 then
+                widget#show position size
     end
 
 class vbox =
@@ -152,7 +200,7 @@ class vbox =
             let height = min max_height best_height in
             (width, height)
 
-        method show (column, row) (width, height) =
+        method show_part drop (column, row) (width, height) =
             let last_row = row + height - 1 in
             let rec show row index =
                 if row > last_row || index >= Array.length children
@@ -165,24 +213,4 @@ class vbox =
                         widget#show (column, row) (width, widget_height);
                         show (row + widget_height) (index + 1)
             in show row 0
-    end
-
-class window widget =
-    object (self)
-        val mutable on_keypress_function = nop
-
-        initializer
-            on_resize (self#show (1, 1));
-            on_keypress self#keypress
-
-        method private keypress character =
-            on_keypress_function character
-
-        method on_keypress keypress_function =
-            on_keypress_function <- keypress_function
-
-        method show position size =
-            clear_screen ();
-            set_cursor (1, 1);
-            (widget :> widget)#show position size
     end
