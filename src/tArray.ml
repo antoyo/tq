@@ -22,3 +22,5 @@ let max =
             else acc
     in
     Array.fold_left comparison_function 0
+
+let sum = Array.fold_left (+) 0

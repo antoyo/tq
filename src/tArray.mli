@@ -16,3 +16,5 @@
  *)
 
 val max : int array -> int
+
+val sum : int array -> int

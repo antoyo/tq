@@ -19,6 +19,12 @@ open TqBase
 
 type color = TqBase.color = Black | Blue | Cyan | Default | Green | Magenta | Red | Yellow | White
 
+type key_type = ArrowDown | ArrowLeft | ArrowRight | ArrowUp
+
+type key =
+    | Char of char
+    | Key of key_type
+
 type text_property =
     | TextBold
     | TextColor of color
@@ -33,9 +39,18 @@ val shutdown : unit -> unit
 
 class virtual widget :
     object
+        val mutable parent : widget option
         val mutable window : window option
 
         method virtual best_size : size -> size
+        method clear : position -> size -> unit
+        method keypress : key -> bool
+        method on_keypress : (key -> bool) -> unit
+        method on_keypress_function : (key -> bool)
+        method parent : widget option
+        method redraw : unit
+        method request_focus : unit
+        method set_parent : widget -> unit
         method set_window : window -> unit
         method virtual show : position -> size -> unit
         method virtual show_part : int -> position -> size -> unit
@@ -44,8 +59,8 @@ class virtual widget :
 
 and window : #widget ->
     object
-        method private keypress : char -> unit
-        method on_keypress : (char -> unit) -> unit
+        method ask_focus : widget -> unit
+        method private keypress : key -> unit
         method show : position -> size -> unit
     end
 
@@ -55,15 +70,31 @@ class virtual container :
 
         method add : widget -> unit
         method virtual best_size : size -> size
+        method clear : position -> size -> unit
+        method keypress : key -> bool
+        method on_keypress : (key -> bool) -> unit
+        method on_keypress_function : (key -> bool)
+        method parent : widget option
+        method redraw : unit
+        method request_focus : unit
+        method set_parent : widget -> unit
         method set_window : window -> unit
         method virtual show : position -> size -> unit
         method virtual show_part : int -> position -> size -> unit
         method show_within : position -> size -> string -> unit
     end
 
-class label : ?properties: text_property list -> ?multiline: bool -> string ->
+class label : ?properties: text_property list -> string ->
     object
         method best_size : size -> size
+        method clear : position -> size -> unit
+        method keypress : key -> bool
+        method on_keypress : (key -> bool) -> unit
+        method on_keypress_function : (key -> bool)
+        method parent : widget option
+        method redraw : unit
+        method request_focus : unit
+        method set_parent : widget -> unit
         method set_window : window -> unit
         method show : position -> size -> unit
         method show_part : int -> position -> size -> unit
@@ -76,6 +107,31 @@ class scrollbar : ?horizontal: bool -> ?vertical: bool -> #widget ->
 
         method add : widget -> unit
         method best_size : size -> size
+        method clear : position -> size -> unit
+        method keypress : key -> bool
+        method on_keypress : (key -> bool) -> unit
+        method on_keypress_function : (key -> bool)
+        method parent : widget option
+        method redraw : unit
+        method request_focus : unit
+        method set_parent : widget -> unit
+        method set_window : window -> unit
+        method show : position -> size -> unit
+        method show_part : int -> position -> size -> unit
+        method show_within : position -> size -> string -> unit
+    end
+
+class textarea : ?properties: text_property list -> string ->
+    object
+        method best_size : size -> size
+        method clear : position -> size -> unit
+        method keypress : key -> bool
+        method on_keypress : (key -> bool) -> unit
+        method on_keypress_function : (key -> bool)
+        method parent : widget option
+        method redraw : unit
+        method request_focus : unit
+        method set_parent : widget -> unit
         method set_window : window -> unit
         method show : position -> size -> unit
         method show_part : int -> position -> size -> unit
@@ -86,6 +142,14 @@ class vbox :
     object
         method add : widget -> unit
         method best_size : size -> size
+        method clear : position -> size -> unit
+        method keypress : key -> bool
+        method on_keypress : (key -> bool) -> unit
+        method on_keypress_function : (key -> bool)
+        method parent : widget option
+        method redraw : unit
+        method request_focus : unit
+        method set_parent : widget -> unit
         method set_window : window -> unit
         method show : position -> size -> unit
         method show_part : int -> position -> size -> unit
